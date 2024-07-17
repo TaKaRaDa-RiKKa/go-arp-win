@@ -30,11 +30,7 @@ func init() {
 	Scanner.PersistentFlags().BoolVarP(&active, "active", "", false, "display active device")
 }
 
-func run(scanner *cobra.Command, args []string) {
-	if err := scanner.PersistentFlags().Parse(args); err != nil {
-		panic(err)
-	}
-
+func run(_ *cobra.Command, _ []string) {
 	if _, ipNet, err := net.ParseCIDR(target); err == nil {
 		if !ipNet.IP.IsPrivate() {
 			console5(color.ColorYellow, "Invalid address", "N/A", "N/A", "N/A")

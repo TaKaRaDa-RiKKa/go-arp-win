@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestSendARPV4(t *testing.T) {
+func TestSendTo(t *testing.T) {
 	var wg sync.WaitGroup
 	for _, ip := range ips(net.IPv4Mask(192, 168, 1, 0)) {
 		wg.Add(1)

@@ -19,27 +19,24 @@ var active bool
 var colorful bool
 
 var Scanner = &cobra.Command{
-	Use:   "scan",
 	Short: "arp scan tool",
+	Use:   "goarp -t ip/slash",
 	Run:   run,
 }
 
 func init() {
-	Scanner.PersistentFlags().StringVarP(&target, "target", "t", "", "ipv4 address")
+	Scanner.PersistentFlags().StringVarP(&target, "target", "t", "", "ipv4")
 	Scanner.PersistentFlags().BoolVarP(&colorful, "color", "", true, "console color")
 	Scanner.PersistentFlags().BoolVarP(&active, "active", "", false, "display active device")
 }
 
-func run(scanner *cobra.Command, args []string) {
-	if err := scanner.PersistentFlags().Parse(args); err != nil {
-		panic(err)
+func run(cmd *cobra.Command, _ []string) {
+	if target == "" {
+		_ = cmd.Help()
+		return
 	}
 
 	if _, ipNet, err := net.ParseCIDR(target); err == nil {
-		if !ipNet.IP.IsPrivate() {
-			console5(color.ColorYellow, "Invalid address", "N/A", "N/A", "N/A")
-			return
-		}
 		enableColorful()
 		console5(color.ColorWhite, "IPv4", "MAC", "TIME", "ERROR")
 
@@ -48,11 +45,6 @@ func run(scanner *cobra.Command, args []string) {
 	}
 
 	if ip := net.ParseIP(target); ip != nil {
-		if !ip.IsPrivate() {
-			console5(color.ColorYellow, "Invalid address", "N/A", "N/A", "N/A")
-			return
-		}
-
 		enableColorful()
 		console5(color.ColorWhite, "IPv4", "MAC", "TIME", "ERROR")
 
@@ -60,16 +52,20 @@ func run(scanner *cobra.Command, args []string) {
 		return
 	}
 
-	console5(color.ColorYellow, "Invalid address", "N/A", "N/A", "N/A")
+	fmt.Printf("Invalid target: %s\n", target)
 }
 
 func Range(ip net.IP) {
+	var limiter = make(chan struct{}, 256)
+
 	var wg sync.WaitGroup
 	for _, dstIP := range ips(ip.To4(), ip.DefaultMask()) {
-		wg.Add(1)
+		limiter <- struct{}{}
 
+		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			defer func() { <-limiter }()
 			var start = time.Now()
 
 			var err error

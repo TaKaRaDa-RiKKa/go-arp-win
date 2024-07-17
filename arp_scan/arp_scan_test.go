@@ -7,7 +7,7 @@ import (
 )
 
 func TestRange(t *testing.T) {
-	_, ipnet, err := net.ParseCIDR("192.168.2.1/24")
+	_, ipnet, err := net.ParseCIDR("192.168.1.1/24")
 	if err != nil {
 		t.Fatal(err)
 	}

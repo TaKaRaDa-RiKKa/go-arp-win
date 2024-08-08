@@ -110,7 +110,7 @@ func ips(ip net.IP, mask net.IPMask) (ips []net.IP) {
 
 func console5(c color.Color, col1, col2, col3, col4 string) {
 	if colorful {
-		fmt.Printf("%s%-20s %-20s %-20s %-20s%s\n", c, col1, col2, col3, col4, color.None)
+		fmt.Printf("%s%-20s %-20s %-20s %-20s%s\n", c, col1, col2, col3, col4, color.Reset)
 		return
 	}
 	fmt.Printf("%-20s %-20s %-20s %-20s\n", col1, col2, col3, col4)
